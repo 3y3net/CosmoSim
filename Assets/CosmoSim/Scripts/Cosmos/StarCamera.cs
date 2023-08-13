@@ -78,6 +78,7 @@ public class StarCamera : MonoBehaviour
                 bool hasHit = GameObject.FindObjectOfType<StarGeneration>().RaycastToStar(ray, out hitTarget);
                 if (hasHit)
                 {
+                /*
                     target = hitTarget.gameObject;
                     Star targStar = target.transform.GetComponent<Star>();
                     targStar.ResizeStar(transform.position, true);
@@ -101,10 +102,12 @@ public class StarCamera : MonoBehaviour
                     GameObject.Find("StarSeed").GetComponent<Text>().text = targStar.starSeed.ToString();
                     
                     GameObject.Find("SectorCoordinate").GetComponent<Text>().text = (lastStarPos / galaxy.sectorSize).ToString("F0");
+                */
                 }
             }
               
             // output distance in light years the camera is from the target
+            /*
             if(starInfo.activeInHierarchy)
                 if (GameObject.Find("StarName").GetComponent<Text>().text != "")
                 {
@@ -114,7 +117,7 @@ public class StarCamera : MonoBehaviour
 			    {
                     starInfo.SetActive(false);
                 }
-
+            */
 
             /*
             if (Input.GetKeyUp(KeyCode.Mouse1))
@@ -126,13 +129,14 @@ public class StarCamera : MonoBehaviour
                     targTracker.tracking = true;
             }
             */
-
+            /*
             if (Input.GetKeyDown(KeyCode.Escape) && starInfo.activeSelf)
             {
                 GameObject.Find("StarName").GetComponent<Text>().text = "";
                 lastStarPos = new Vector3(0, 0, 0);
                 GameObject.FindObjectOfType<TargetTracker>().target = lastStarPos;
-            }        
+            } 
+            */
     }
 
     void ComposeInfoBox1()
