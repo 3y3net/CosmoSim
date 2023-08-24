@@ -13,6 +13,8 @@ public class GalaxyMapManager : MonoBehaviour
 
     public GameObject galaxyMapObject;
     public Image galaxyImage;
+    public Image crosshair_v, crosshair_h;
+
 
     public float zoomLevel = 1.0f;
     public Vector2 panning = Vector2.zero;
@@ -31,6 +33,8 @@ public class GalaxyMapManager : MonoBehaviour
     float targetZoom;
     public float zoomOutMin = 1;
     public float zoomOutMax = 8;
+
+    public Text text_x, text_y;
 
 
     // Start is called before the first frame update
@@ -51,9 +55,10 @@ public class GalaxyMapManager : MonoBehaviour
         float xPositionDeltaPoint = Input.mousePosition.x - newRect.x;
         float yPositionDeltaPoint = Input.mousePosition.y - newRect.y;
 
-        //Debug.Log("The x position delta is: " + xPositionDeltaPoint);
-        //Debug.Log("The y position delta is: " + yPositionDeltaPoint);
-        ManagePanAndZoom();
+        
+        ManagePanAndZoom(xPositionDeltaPoint, yPositionDeltaPoint, newRect);
+
+        PositionCrtosshaiTopView(xPositionDeltaPoint, yPositionDeltaPoint, newRect);        
     }
 
     private void LateUpdate()
@@ -61,16 +66,9 @@ public class GalaxyMapManager : MonoBehaviour
         
     }
 
-    void ManagePanAndZoom()
+    void ManagePanAndZoom(float xPositionDeltaPoint, float yPositionDeltaPoint, Rect newRect)
     {
-        //Calculates current position
-        Vector3[] corners = new Vector3[4];
-        galaxyImage.rectTransform.GetWorldCorners(corners);
-        Rect newRect = new Rect(corners[0], corners[2] - corners[0]);
-
-        float xPositionDeltaPoint = Input.mousePosition.x - newRect.x;
-        float yPositionDeltaPoint = Input.mousePosition.y - newRect.y;      
-
+        
         //Calculate desplacement
         if (Input.GetMouseButtonDown(0))
         {
@@ -84,20 +82,20 @@ public class GalaxyMapManager : MonoBehaviour
         }
 
         //Read mouse wheel and apply zoom
-        float increment = -Input.GetAxis("Mouse ScrollWheel");
+        float increment = Input.GetAxis("Mouse ScrollWheel");
 
-        float zoomFactor = Mathf.Clamp(galaxyImage.rectTransform.localScale.x + increment, zoomOutMin, zoomOutMax);
+        zoomLevel = Mathf.Clamp(galaxyImage.rectTransform.localScale.x + increment, zoomOutMin, zoomOutMax);
 
         //calculates displacement when zoom
         Vector2 correction = new Vector2(xPositionDeltaPoint, yPositionDeltaPoint);
-        Vector2 newPos = correction * (zoomFactor / galaxyImage.rectTransform.localScale.x);
+        Vector2 newPos = correction * (zoomLevel / galaxyImage.rectTransform.localScale.x);
         correction = newPos - correction;
 
         
         gridHUD.SetNewGridFactor(((galaxyImage.rectTransform.localScale.x-1) % 2) + 1);
 
         //Apply zoom
-        zoom(zoomFactor);
+        zoom(zoomLevel);
 
         //Apply translation and correction to zoom to mouse position        
         Debug.Log( increment);
@@ -126,10 +124,37 @@ public class GalaxyMapManager : MonoBehaviour
         
 
         galaxyImage.rectTransform.position = correctedPosition +  startRect.position - correction;
+        panning = new Vector2(galaxyImage.rectTransform.position.x -startRect.x, galaxyImage.rectTransform.position.y-startRect.y);// - newRect.position;
     }
 
     void zoom(float factor)
     {     
         galaxyImage.rectTransform.localScale = new Vector3(factor, factor, 0);
+    }
+
+    public void PositionCrtosshaiTopView(float x, float y, Rect origin)
+	{
+                   
+        float range_x = (x * 10000f / 1480f)-5000f;
+        float range_y = (y * 10000f / 980f) - 5000f;
+
+        text_x.text = range_x.ToString();
+        text_y.text = range_y.ToString();
+
+        /*
+        x = x < 10 ? 10 : x > 1490 ? 1490 : x;
+        y = y <= 10 ? 10 : y > 990 ? 990 : y;
+        */
+
+        float posx = x + startRect.x - 10 + panning.x;
+        float posy = y + startRect.y - 10 + panning.y;
+        
+        posx = posx < startRect.x ? startRect.x : posx > 1500+startRect.x-20 ? 1500+startRect.x-20 : posx;
+        posy = posy < startRect.y ? startRect.y : posy > 1000 + startRect.y - 20 ? 1000 + startRect.y - 20 : posy;
+
+        //Debug.Log(x + " - " + y + " || " + origin + " - " + posx + ", " + posy);
+
+        crosshair_h.rectTransform.position = new Vector3(origin.x - panning.x, posy, 0);
+        crosshair_v.rectTransform.position = new Vector3(posx, origin.y - panning.y, 0);
     }
 }
